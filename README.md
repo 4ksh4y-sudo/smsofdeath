@@ -48,9 +48,9 @@ text
 app/build/outputs/apk/debug/app-debug.apk
 
 
-To protect a device:
-
-Update to the October 2026 (or later) security patch level.
-
-Carriers can mitigate this by blocking incoming data SMS to port 2948 at the network level.
-
+> [!WARNING]  
+> **Mitigation & Patching**
+> 
+> To protect a device:
+> *   Update to the October 2026 (or later) security patch level.
+> *   Carriers can mitigate this by blocking incoming data SMS to port `2948` at the network level.
