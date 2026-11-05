@@ -26,9 +26,7 @@ The value overflows into a negative integer (`-2,147,483,648`). The framework th
 
 The attack is executed via a silent data SMS sent directly to the WAP Push port. The user receives no notification, and the message is never saved to the standard SMS inbox.
 
-**Payload Hex:**
-```text
-01 06 88 80 80 80 00 BE
+
 
 **Compiling the APK**
 Clone the repository:
